@@ -17,9 +17,12 @@ export class ExpenseService {
   async createExpense(createExpenseDto: {
     name: string;
     amount: number;
-    date: Date;
+    date: string;
   }) {
-    await this._ExpenseRepository.create(createExpenseDto);
+    await this._ExpenseRepository.create({
+      ...createExpenseDto,
+      date: new Date(createExpenseDto.date),
+    });
   }
 
   async updateExpense(

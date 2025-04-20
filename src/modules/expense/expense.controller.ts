@@ -58,7 +58,7 @@ export const createTransaction = makeHandler(
       const transaction = req.body as {
         name: string;
         amount: number;
-        date: Date;
+        date: string;
       };
       await expenseService.createExpense(transaction);
       return res

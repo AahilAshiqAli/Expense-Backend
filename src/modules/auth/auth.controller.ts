@@ -12,6 +12,7 @@ export const login = makeHandler({ body: LoginDto }, async (req, res) => {
 });
 
 export const register = makeHandler({ body: RegisterDto }, async (req, res) => {
+  console.log('hello');
   const result = await authService.register(req.body);
   return res.status(StatusCodes.OK).json(result);
 });

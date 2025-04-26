@@ -22,10 +22,16 @@ export const getAllTransactions = makeHandler(
           .json({ message: 'No transactions found' });
       }
       return res.status(StatusCodes.OK).json(transactions);
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: `Internal server error: ${error.message}` });
+      }
+
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Internal server error' });
+        .json({ message: 'Unknown Internal server error' });
     }
   },
 );
@@ -43,10 +49,16 @@ export const getTransactionByID = makeHandler(
           .json({ message: 'No transactions found' });
       }
       return res.status(StatusCodes.OK).json(transaction);
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: `Internal server error: ${error.message}` });
+      }
+
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Internal server error' });
+        .json({ message: 'Unknown Internal server error' });
     }
   },
 );
@@ -59,15 +71,24 @@ export const createTransaction = makeHandler(
         name: string;
         amount: number;
         date: string;
+        userId: string;
+        type: string;
       };
+      console.log('hello');
       await expenseService.createExpense(transaction);
       return res
         .status(StatusCodes.CREATED)
         .json({ message: 'Transaction created successfully' });
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: `Internal server error: ${error.message}` });
+      }
+
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Internal server error' });
+        .json({ message: 'Unknown Internal server error' });
     }
   },
 );
@@ -82,16 +103,24 @@ export const updateTransaction = makeHandler(
         id: number;
         name: string;
         amount: number;
-        date: Date;
+        date: string;
+        type: string;
+        userId: string;
       };
       await expenseService.updateExpense(id, transaction);
       return res
         .status(StatusCodes.OK)
         .json({ message: 'Transaction updated successfully' });
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: `Internal server error: ${error.message}` });
+      }
+
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Internal server error' });
+        .json({ message: 'Unknown Internal server error' });
     }
   },
 );
@@ -106,10 +135,16 @@ export const deleteTransaction = makeHandler(
       return res
         .status(StatusCodes.OK)
         .json({ message: 'Transaction deleted successfully' });
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: `Internal server error: ${error.message}` });
+      }
+
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Internal server error' });
+        .json({ message: 'Unknown Internal server error' });
     }
   },
 );

@@ -24,7 +24,7 @@ export class AuthService {
       email: user.email,
     });
 
-    return { token };
+    return { token, id: user._id.toString() };
   }
 
   public async register(registerDto: RegisterDto) {
@@ -46,7 +46,7 @@ export class AuthService {
     };
     const token = this._jwtAuthentication.createToken(payload);
 
-    return { token };
+    return { token, id: registeredUser._id.toString() };
   }
 
   public async comparePassword(password: string, hashedPassword: string) {

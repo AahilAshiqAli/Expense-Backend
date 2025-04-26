@@ -1,7 +1,7 @@
 import { EntityRepository } from '~/lib/entity-repository';
 import { ExpenseModel, type Expense } from './expense.entity';
 
-export class Expenserepository extends EntityRepository<Expense> {
+export class ExpenseRepository extends EntityRepository<Expense> {
   constructor() {
     super(ExpenseModel);
   }

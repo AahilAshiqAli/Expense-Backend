@@ -15,14 +15,14 @@ const expenseSchema = new Schema(
     // Reference to User collection
     userId: {
       type: Types.ObjectId,
-      ref: 'User', // This should match your User model name
+      ref: 'User', // This should match User model name
       required: true,
     },
   },
   { timestamps: true },
 );
 
-// create index for faster search
+// creating index for faster search for just date and userID
 expenseSchema.index({ userId: 1, date: -1 });
 
 export type Expense = InferSchemaType<typeof expenseSchema>;

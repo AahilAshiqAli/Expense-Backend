@@ -18,6 +18,10 @@ const expenseSchema = new Schema(
       ref: 'User', // This should match User model name
       required: true,
     },
+    category: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true },
 );

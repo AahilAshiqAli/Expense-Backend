@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 
 export const ErrorHandler = new (class ErrorHandler {
   public handleError(error: Error, response?: Response): void {
+    console.error('⚠️ [ErrorHandler] handleError called with error:', error);
     if (
       error instanceof AppException &&
       error.isOperational &&
@@ -36,6 +37,6 @@ export const ErrorHandler = new (class ErrorHandler {
       });
     }
 
-    process.exit(1);
+    // process.exit(1);
   }
 })();

@@ -1,8 +1,17 @@
-import { type Request, type Response } from 'express';
 import { ExpenseService } from './expense.service';
 import { makeHandler } from '~/lib/core/make-handler';
 import { StatusCodes } from 'http-status-codes';
-import { TransactionCreateDto, TrasactionIDDTO } from './dtos/transaction.dto';
+import {
+  TransactionCreateDto,
+  TransactionIDDTO,
+  TransactionPaginatedDto,
+  TransactionUpdateDto,
+} from './dtos/transaction.dto';
+import {
+  CategoryCreateDto,
+  CategoryUpdateDto,
+  CategoryIDDTO,
+} from './dtos/category.dtos';
 
 const expenseService = new ExpenseService();
 
@@ -12,10 +21,10 @@ const expenseService = new ExpenseService();
 
 // we usually make dtos only for incoming request objects not for outgoing response objects becuase we dont trust external services
 export const getAllTransactions = makeHandler(
-  {},
-  async (req: Request, res: Response) => {
+  { params: TransactionIDDTO },
+  async (req, res) => {
     try {
-      const transactions = await expenseService.getAll();
+      const transactions = await expenseService.getAll(req.params);
       if (transactions.length === 0) {
         return res
           .status(StatusCodes.NOT_FOUND)
@@ -37,12 +46,10 @@ export const getAllTransactions = makeHandler(
 );
 
 export const getTransactionByID = makeHandler(
-  { params: TrasactionIDDTO },
-  async (req: Request, res: Response) => {
+  { params: TransactionIDDTO },
+  async (req, res) => {
     try {
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-      const id = req.params.id as string;
-      const transaction = await expenseService.getById(id);
+      const transaction = await expenseService.getById(req.params);
       if (transaction === null || Object.keys(transaction).length === 0) {
         return res
           .status(StatusCodes.NOT_FOUND)
@@ -65,17 +72,9 @@ export const getTransactionByID = makeHandler(
 
 export const createTransaction = makeHandler(
   { body: TransactionCreateDto },
-  async (req: Request, res: Response) => {
+  async (req, res) => {
     try {
-      const transaction = req.body as {
-        name: string;
-        amount: number;
-        date: string;
-        userId: string;
-        type: string;
-      };
-      console.log('hello');
-      await expenseService.createExpense(transaction);
+      await expenseService.createExpense(req.body);
       return res
         .status(StatusCodes.CREATED)
         .json({ message: 'Transaction created successfully' });
@@ -94,20 +93,10 @@ export const createTransaction = makeHandler(
 );
 
 export const updateTransaction = makeHandler(
-  { params: TrasactionIDDTO, body: TransactionCreateDto },
-  async (req: Request, res: Response) => {
+  { params: TransactionIDDTO, body: TransactionUpdateDto },
+  async (req, res) => {
     try {
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-      const id = req.params.id as string;
-      const transaction = req.body as {
-        id: number;
-        name: string;
-        amount: number;
-        date: string;
-        type: string;
-        userId: string;
-      };
-      await expenseService.updateExpense(id, transaction);
+      await expenseService.updateExpense(req.params, req.body);
       return res
         .status(StatusCodes.OK)
         .json({ message: 'Transaction updated successfully' });
@@ -126,12 +115,10 @@ export const updateTransaction = makeHandler(
 );
 
 export const deleteTransaction = makeHandler(
-  { params: TrasactionIDDTO },
-  async (req: Request, res: Response) => {
+  { params: TransactionIDDTO },
+  async (req, res) => {
     try {
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-      const id = req.params.id as string;
-      await expenseService.deleteExpense(id);
+      await expenseService.deleteExpense(req.params);
       return res
         .status(StatusCodes.OK)
         .json({ message: 'Transaction deleted successfully' });
@@ -142,6 +129,120 @@ export const deleteTransaction = makeHandler(
           .json({ message: `Internal server error: ${error.message}` });
       }
 
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: 'Unknown Internal server error' });
+    }
+  },
+);
+
+export const getAllCategories = makeHandler(
+  { params: CategoryIDDTO },
+  async (req, res) => {
+    try {
+      const categories = await expenseService.getAllCategories(req.params);
+      if (categories.length === 0) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: 'No categories found' });
+      }
+      return res.status(StatusCodes.OK).json(categories);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: `Internal server error: ${error.message}` });
+      }
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: 'Unknown Internal server error' });
+    }
+  },
+);
+
+export const createCategory = makeHandler(
+  { body: CategoryCreateDto },
+  async (req, res) => {
+    try {
+      await expenseService.createCategory(req.body);
+      return res
+        .status(StatusCodes.CREATED)
+        .json({ message: 'Category created successfully' });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: `Internal server error: ${error.message}` });
+      }
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: 'Unknown Internal server error' });
+    }
+  },
+);
+
+export const updateCategory = makeHandler(
+  { params: CategoryIDDTO, body: CategoryUpdateDto },
+  async (req, res) => {
+    try {
+      await expenseService.updateCategory(req.params, req.body);
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Category updated successfully' });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: `Internal server error: ${error.message}` });
+      }
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: 'Unknown Internal server error' });
+    }
+  },
+);
+
+export const deleteCategory = makeHandler(
+  { params: CategoryIDDTO },
+  async (req, res) => {
+    try {
+      await expenseService.deleteCategory(req.params);
+      return res
+        .status(StatusCodes.OK)
+        .json({ message: 'Category deleted successfully' });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: `Internal server error: ${error.message}` });
+      }
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: 'Unknown Internal server error' });
+    }
+  },
+);
+
+export const getAllTransactionsPaginated = makeHandler(
+  { params: TransactionIDDTO, query: TransactionPaginatedDto },
+  async (req, res) => {
+    try {
+      const transactions = await expenseService.getPaginatedTransactions(
+        req.params,
+        req.query,
+      );
+      if (transactions.length === 0) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: 'No transactions found' });
+      }
+      return res.status(StatusCodes.OK).json(transactions);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: `Internal server error: ${error.message}` });
+      }
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: 'Unknown Internal server error' });

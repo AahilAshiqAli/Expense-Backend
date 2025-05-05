@@ -24,7 +24,7 @@ export class AuthService {
       email: user.email,
     });
 
-    return { token, id: user._id.toString() };
+    return { token };
   }
 
   public async register(registerDto: RegisterDto) {

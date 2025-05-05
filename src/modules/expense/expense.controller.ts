@@ -20,30 +20,28 @@ const expenseService = new ExpenseService();
 // So you dont need to check for undefined or null
 
 // we usually make dtos only for incoming request objects not for outgoing response objects becuase we dont trust external services
-export const getAllTransactions = makeHandler(
-  { params: TransactionIDDTO },
-  async (req, res) => {
-    try {
-      const transactions = await expenseService.getAll(req.params);
-      if (transactions.length === 0) {
-        return res
-          .status(StatusCodes.NOT_FOUND)
-          .json({ message: 'No transactions found' });
-      }
-      return res.status(StatusCodes.OK).json(transactions);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res
-          .status(StatusCodes.INTERNAL_SERVER_ERROR)
-          .json({ message: `Internal server error: ${error.message}` });
-      }
-
+export const getAllTransactions = makeHandler({}, async (req, res) => {
+  try {
+    const userId: TransactionIDDTO = { id: req?.user?._id.toString() };
+    const transactions = await expenseService.getAll(userId);
+    if (transactions.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'No transactions found' });
+    }
+    return res.status(StatusCodes.OK).json(transactions);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Unknown Internal server error' });
+        .json({ message: `Internal server error: ${error.message}` });
     }
-  },
-);
+
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Unknown Internal server error' });
+  }
+});
 
 export const getTransactionByID = makeHandler(
   { params: TransactionIDDTO },
@@ -136,29 +134,27 @@ export const deleteTransaction = makeHandler(
   },
 );
 
-export const getAllCategories = makeHandler(
-  { params: CategoryIDDTO },
-  async (req, res) => {
-    try {
-      const categories = await expenseService.getAllCategories(req.params);
-      if (categories.length === 0) {
-        return res
-          .status(StatusCodes.NOT_FOUND)
-          .json({ message: 'No categories found' });
-      }
-      return res.status(StatusCodes.OK).json(categories);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res
-          .status(StatusCodes.INTERNAL_SERVER_ERROR)
-          .json({ message: `Internal server error: ${error.message}` });
-      }
+export const getAllCategories = makeHandler({}, async (req, res) => {
+  try {
+    const userId: CategoryIDDTO = { id: req?.user?._id.toString() };
+    const categories = await expenseService.getAllCategories(userId);
+    if (categories.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'No categories found' });
+    }
+    return res.status(StatusCodes.OK).json(categories);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Unknown Internal server error' });
+        .json({ message: `Internal server error: ${error.message}` });
     }
-  },
-);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Unknown Internal server error' });
+  }
+});
 
 export const createCategory = makeHandler(
   { body: CategoryCreateDto },
@@ -224,11 +220,12 @@ export const deleteCategory = makeHandler(
 );
 
 export const getAllTransactionsPaginated = makeHandler(
-  { params: TransactionIDDTO, query: TransactionPaginatedDto },
+  { query: TransactionPaginatedDto },
   async (req, res) => {
     try {
+      const userId: TransactionIDDTO = { id: req?.user?._id.toString() };
       const transactions = await expenseService.getPaginatedTransactions(
-        req.params,
+        userId,
         req.query,
       );
       if (transactions.length === 0) {

@@ -1,4 +1,4 @@
-import { Schema, model, type InferSchemaType } from 'mongoose';
+import { Schema, model, type InferSchemaType, type Document } from 'mongoose';
 
 const userSchema = new Schema(
   {
@@ -9,7 +9,7 @@ const userSchema = new Schema(
   { timestamps: true },
 );
 
-export type User = InferSchemaType<typeof userSchema>;
-export type SafeUser = Omit<User, 'password'>;
+export type User = InferSchemaType<typeof userSchema> & Document;
+export type SafeUser = Pick<User, '_id' | 'email' | 'username'>;
 
 export const UserModel = model<User>('user', userSchema);
